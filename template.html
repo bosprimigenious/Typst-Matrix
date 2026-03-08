@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Typst-Matrix Workspace</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        // 采用 Vercel 经典的极简黑白灰 (Zinc) 色系
+                        background: '#ffffff',
+                        foreground: '#09090b',
+                        muted: '#f4f4f5',
+                        mutedForeground: '#71717a',
+                        border: '#e4e4e7',
+                        primary: '#18181b',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'ui-sans-serif', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+                        mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* 自定义极简滚动条 */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #d4d4d8; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #a1a1aa; }
+    </style>
+</head>
+<body class="bg-[#fafafa] text-foreground font-sans antialiased h-screen overflow-hidden flex flex-col">
+    <div id="root" class="h-full flex flex-col"></div>
+
+    <script type="text/babel">
+        const { useState } = React;
+
+        // --- SVG 图标组件 (替代 Emoji) ---
+        const IconPlus = () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>;
+        const IconTrash = () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>;
+        const IconDownload = () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>;
+        const IconFileText = () => <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>;
+
+        function App() {
+            // 初始状态结构
+            const [formData, setFormData] = useState({
+                templateId: 'resume_aero_minimal',
+                personal: {
+                    name: '张恒基',
+                    alias: 'Bosprimigenious',
+                    title: '全栈开发者 / 算法工程师',
+                    email: 'bosprimigenious@example.com',
+                    phone: '17200481243',
+                },
+                experience: [
+                    {
+                        id: Date.now(),
+                        company: '知名科技公司',
+                        role: '软件研发实习生',
+                        date: '2025.06 - 至今',
+                        description: '负责核心业务后端微服务架构的设计与实现。'
+                    }
+                ]
+            });
+
+            const [isCompiling, setIsCompiling] = useState(false);
+
+            // 处理基础信息变更
+            const handlePersonalChange = (e) => {
+                const { name, value } = e.target;
+                setFormData(prev => ({
+                    ...prev,
+                    personal: { ...prev.personal, [name]: value }
+                }));
+            };
+
+            // 处理模板切换
+            const handleTemplateChange = (e) => {
+                setFormData(prev => ({ ...prev, templateId: e.target.value }));
+            };
+
+            // 处理经历的增删改
+            const addExperience = () => {
+                setFormData(prev => ({
+                    ...prev,
+                    experience: [...prev.experience, { id: Date.now(), company: '', role: '', date: '', description: '' }]
+                }));
+            };
+
+            const removeExperience = (id) => {
+                setFormData(prev => ({
+                    ...prev,
+                    experience: prev.experience.filter(exp => exp.id !== id)
+                }));
+            };
+
+            const handleExperienceChange = (id, field, value) => {
+                setFormData(prev => ({
+                    ...prev,
+                    experience: prev.experience.map(exp => 
+                        exp.id === id ? { ...exp, [field]: value } : exp
+                    )
+                }));
+            };
+
+            // 编译操作
+            const handleCompile = () => {
+                setIsCompiling(true);
+                setTimeout(() => {
+                    setIsCompiling(false);
+                    console.log("Payload to backend:", formData);
+                }, 1000);
+            };
+
+            return (
+                <div class="h-full flex flex-col">
+                    {/* 导航栏 */}
+                    <header class="h-14 border-b border-border bg-background flex items-center justify-between px-6 shrink-0">
+                        <div class="flex items-center gap-2 font-semibold text-sm">
+                            <div class="w-6 h-6 bg-primary text-background flex items-center justify-center rounded-md font-mono text-xs">T</div>
+                            Typst-Matrix Builder
+                        </div>
+                        <div class="text-xs text-mutedForeground font-mono">
+                            v0.1.0-alpha
+                        </div>
+                    </header>
+
+                    {/* 主工作区 */}
+                    <main class="flex-1 overflow-hidden flex">
+                        
+                        {/* 左侧：编辑器面板 */}
+                        <div class="w-1/2 border-r border-border bg-background flex flex-col overflow-y-auto">
+                            <div class="p-6 space-y-8">
+                                
+                                {/* 模块 1: 视图配置 */}
+                                <section>
+                                    <h2 class="text-sm font-semibold mb-3 text-primary flex items-center gap-2">
+                                        <IconFileText />
+                                        Document Configuration
+                                    </h2>
+                                    <select 
+                                        value={formData.templateId} 
+                                        onChange={handleTemplateChange}
+                                        class="w-full text-sm p-2 border border-border rounded-md bg-transparent focus:ring-1 focus:ring-primary focus:border-primary outline-none transition-all"
+                                    >
+                                        <option value="resume_aero_minimal">Aero Minimalist CV</option>
+                                        <option value="resume_golden_dual">Golden Ratio Dual-Column</option>
+                                        <option value="cv_bento">Bento Box Flow</option>
+                                        <option value="cv_cli">CLI Terminal Format</option>
+                                    </select>
+                                </section>
+
+                                <hr class="border-border" />
+
+                                {/* 模块 2: 基础数据 */}
+                                <section>
+                                    <h2 class="text-sm font-semibold mb-3 text-primary">Personal Details</h2>
+                                    <div class="grid grid-cols-2 gap-4">
+                                        <div class="col-span-2">
+                                            <label class="block text-xs text-mutedForeground mb-1">Full Name</label>
+                                            <input type="text" name="name" value={formData.personal.name} onChange={handlePersonalChange} class="w-full text-sm p-2 border border-border rounded-md focus:ring-1 focus:ring-primary outline-none" />
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs text-mutedForeground mb-1">Email Address</label>
+                                            <input type="email" name="email" value={formData.personal.email} onChange={handlePersonalChange} class="w-full text-sm p-2 border border-border rounded-md focus:ring-1 focus:ring-primary outline-none" />
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs text-mutedForeground mb-1">Phone Number</label>
+                                            <input type="text" name="phone" value={formData.personal.phone} onChange={handlePersonalChange} class="w-full text-sm p-2 border border-border rounded-md focus:ring-1 focus:ring-primary outline-none" />
+                                        </div>
+                                        <div class="col-span-2">
+                                            <label class="block text-xs text-mutedForeground mb-1">Professional Title</label>
+                                            <input type="text" name="title" value={formData.personal.title} onChange={handlePersonalChange} class="w-full text-sm p-2 border border-border rounded-md focus:ring-1 focus:ring-primary outline-none" />
+                                        </div>
+                                    </div>
+                                </section>
+
+                                <hr class="border-border" />
+
+                                {/* 模块 3: 动态数组 (项目经历) */}
+                                <section>
+                                    <div class="flex items-center justify-between mb-3">
+                                        <h2 class="text-sm font-semibold text-primary">Experience</h2>
+                                        <button onClick={addExperience} class="text-xs flex items-center gap-1 text-mutedForeground hover:text-primary transition-colors">
+                                            <IconPlus /> Add Entry
+                                        </button>
+                                    </div>
+                                    
+                                    <div class="space-y-4">
+                                        {formData.experience.map((exp, index) => (
+                                            <div key={exp.id} class="p-4 border border-border rounded-md bg-muted/30 relative group">
+                                                <button onClick={() => removeExperience(exp.id)} class="absolute top-3 right-3 text-mutedForeground hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                    <IconTrash />
+                                                </button>
+                                                <div class="grid grid-cols-2 gap-3 mb-3">
+                                                    <div>
+                                                        <label class="block text-xs text-mutedForeground mb-1">Organization</label>
+                                                        <input type="text" value={exp.company} onChange={(e) => handleExperienceChange(exp.id, 'company', e.target.value)} class="w-full text-sm p-2 border border-border rounded-md bg-background focus:ring-1 focus:ring-primary outline-none" />
+                                                    </div>
+                                                    <div>
+                                                        <label class="block text-xs text-mutedForeground mb-1">Date Range</label>
+                                                        <input type="text" value={exp.date} onChange={(e) => handleExperienceChange(exp.id, 'date', e.target.value)} class="w-full text-sm p-2 border border-border rounded-md bg-background focus:ring-1 focus:ring-primary outline-none" placeholder="e.g. 2025.06 - Present" />
+                                                    </div>
+                                                    <div class="col-span-2">
+                                                        <label class="block text-xs text-mutedForeground mb-1">Role / Title</label>
+                                                        <input type="text" value={exp.role} onChange={(e) => handleExperienceChange(exp.id, 'role', e.target.value)} class="w-full text-sm p-2 border border-border rounded-md bg-background focus:ring-1 focus:ring-primary outline-none" />
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <label class="block text-xs text-mutedForeground mb-1">Description</label>
+                                                    <textarea value={exp.description} onChange={(e) => handleExperienceChange(exp.id, 'description', e.target.value)} rows="2" class="w-full text-sm p-2 border border-border rounded-md bg-background focus:ring-1 focus:ring-primary outline-none resize-none"></textarea>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </section>
+                            </div>
+                        </div>
+
+                        {/* 右侧：预览面板 */}
+                        <div class="w-1/2 bg-muted flex flex-col relative">
+                            {/* 工具栏 */}
+                            <div class="h-12 border-b border-border bg-background flex items-center justify-between px-4">
+                                <span class="text-xs font-mono text-mutedForeground">output.pdf (Preview)</span>
+                                <button 
+                                    onClick={handleCompile}
+                                    disabled={isCompiling}
+                                    class="text-xs bg-primary text-background px-3 py-1.5 rounded-md flex items-center gap-2 hover:bg-primary/90 disabled:opacity-50 transition-all font-medium"
+                                >
+                                    {isCompiling ? (
+                                        <span class="animate-pulse">Compiling...</span>
+                                    ) : (
+                                        <><IconDownload /> Compile PDF</>
+                                    )}
+                                </button>
+                            </div>
+                            
+                            {/* 渲染区 (当前显示 JSON Payload 供调试) */}
+                            <div class="flex-1 p-6 overflow-y-auto flex items-start justify-center">
+                                <div class="w-full max-w-lg bg-background border border-border rounded-lg shadow-sm p-6">
+                                    <div class="text-xs text-mutedForeground mb-4 border-b border-border pb-2 flex justify-between">
+                                        <span>DEBUG: JSON Payload</span>
+                                        <span>Ready for API</span>
+                                    </div>
+                                    <pre class="text-xs font-mono text-primary whitespace-pre-wrap leading-relaxed">
+                                        {JSON.stringify(formData, null, 2)}
+                                    </pre>
+                                </div>
+                            </div>
+                        </div>
+                    </main>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
