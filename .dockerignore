@@ -1,0 +1,8 @@
+# Dependencies and build outputs
+**/node_modules
+**/dist
+**/.git
+*.log
+.env*
+# Optional: keep 03_my_resume out of image (use 03_resume only)
+03_my_resume
