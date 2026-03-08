@@ -11,8 +11,10 @@ output/
 # Typst 包锁（可选，若使用 typst add）
 # typst.lock
 
-# 依赖
+# 依赖与构建
 node_modules/
+**/dist/
+**/*.tsbuildinfo
 
 # 本地/临时文件
 *.tmp
