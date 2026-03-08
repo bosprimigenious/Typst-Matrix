@@ -1,14 +1,16 @@
 import { Download, Loader2 } from 'lucide-react'
+import { useLocale } from '../../contexts/LocaleContext'
 import { useResumeStore } from '../../store/useResumeStore'
 
 export function ViewerPanel() {
+  const { t } = useLocale()
   const pdfUrl = useResumeStore((s) => s.pdfUrl)
 
   return (
     <div className="relative flex flex-1 flex-col overflow-hidden bg-[#f0f0f3]">
       <div className="absolute left-1/2 top-4 z-10 flex -translate-x-1/2 items-center gap-1 rounded-lg border border-border/50 bg-background/80 px-2 py-1.5 shadow-sm backdrop-blur-md">
         <span className="border-r border-border/50 px-2 text-[11px] font-medium text-mutedForeground">
-          Output Viewer
+          {t('viewer.outputViewer')}
         </span>
         {pdfUrl ? (
           <a
@@ -17,11 +19,11 @@ export function ViewerPanel() {
             className="flex items-center gap-1 rounded-md px-2 py-1 text-[11px] font-medium text-foreground transition-colors hover:bg-muted"
           >
             <Download className="h-3.5 w-3.5" />
-            Export PDF
+            {t('viewer.exportPdf')}
           </a>
         ) : (
           <span className="px-2 text-[11px] text-mutedForeground">
-            Build to export
+            {t('viewer.buildToExport')}
           </span>
         )}
       </div>
@@ -40,11 +42,8 @@ export function ViewerPanel() {
             <div className="flex h-12 w-12 items-center justify-center rounded-lg border border-border bg-background/80">
               <Loader2 className="h-6 w-6 animate-spin" />
             </div>
-            <span className="font-mono text-sm">Typst Core Rendering...</span>
-            <p className="text-xs">
-              Configure the form and wait for auto-compile, or click Build
-              Document.
-            </p>
+            <span className="font-mono text-sm">{t('viewer.rendering')}</span>
+            <p className="text-xs">{t('viewer.hint')}</p>
           </div>
         )}
       </div>
