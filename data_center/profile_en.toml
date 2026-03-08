@@ -1,0 +1,39 @@
+# English CV data pool (replace with your own; add data_center/ to .gitignore for privacy)
+
+name = "Hengji Zhang"
+title = "Full-Stack Developer / Algorithm Engineer"
+
+[contact]
+phone = "+86 172 0048 1243"
+email = "bosprimigenious@foxmail.com"
+website = "bosprimigenious.site"
+github = "github.com/bosprimigenious"
+
+[education]
+section_title = "Education"
+school = "Beijing University of Posts and Telecommunications (BUPT)"
+major = "B.S. in Computer Science and Technology"
+date = "Sep 2024 - Jun 2028"
+location = "Beijing"
+highlights = [
+  "Top 10% (47/452); University Scholarship (Second Class), Merit Student",
+  "Core courses: Data Structures, Algorithm Design, OS, Computer Networks"
+]
+
+[experience]
+section_title = "Experience & Projects"
+
+[honors]
+section_title = "Honors & Awards"
+items = [
+  "First Prize, Beijing Division, China International College Students' Innovation Competition (Core contributor)",
+  "Second Prize, Beijing Inter-University Mathematical Modeling (Team lead)",
+  "First Prize, BUPT Hongyan Cup Main Track (Tech lead)"
+]
+
+[skills]
+section_title = "Skills"
+languages = "Python, C++, TypeScript, JavaScript"
+frontend = "Vue3, React, Canvas, Vite, TailwindCSS"
+backend = "Node.js, Linux, Nginx, Docker"
+tools = "Data Structures & Algorithms, Mathematical Modeling (Matlab), Git"

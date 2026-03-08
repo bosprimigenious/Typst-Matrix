@@ -1,0 +1,59 @@
+# 双语简历 + 北邮实验报告 自动化编译并发布到 Releases
+# 触发：data_center / 03_resume / 02_cs_academics / 10_resume_and_portfolio 变更
+name: Build and Release Typst Matrix
+
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - "data_center/**"
+      - "03_resume/**"
+      - "02_cs_academics/**"
+      - "10_resume_and_portfolio/**"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Typst
+        uses: typst-community/setup-typst@v4
+        with:
+          typst-version: ">=0.11.0"
+
+      - name: Compile PDF Documents
+        run: |
+          mkdir -p output assets/gallery
+          typst compile --root . 10_resume_and_portfolio/bilingual/build_cv_zh.typ output/Resume_ZH.pdf
+          typst compile --root . 10_resume_and_portfolio/bilingual/build_cv_en.typ output/Resume_EN.pdf
+          typst compile --root . 02_cs_academics/bupt_lab_reports/os_lab.typ output/BUPT_OS_Lab.pdf
+          typst compile --root . 03_resume/resume_aero_minimal.typ output/resume_aero.pdf
+          typst compile --root . 03_resume/resume_golden_dual.typ output/resume_golden.pdf
+
+      - name: Generate Gallery Previews (For README)
+        run: |
+          typst compile --root . 10_resume_and_portfolio/bilingual/build_cv_zh.typ assets/gallery/resume_preview.png --ppi 150
+          typst compile --root . 03_resume/resume_aero_minimal.typ assets/gallery/preview_aero.png --ppi 150
+
+      - name: Upload PDFs (Artifacts)
+        uses: actions/upload-artifact@v4
+        with:
+          name: typst-pdfs
+          path: output/*.pdf
+
+      - name: Auto Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: output/*.pdf
+          tag_name: latest
+          name: Latest Build
+          body: "Auto-generated PDFs from Typst-Matrix (Resume ZH/EN, BUPT Lab, resume templates)."
+          make_latest: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

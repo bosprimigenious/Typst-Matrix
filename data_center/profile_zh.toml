@@ -1,0 +1,40 @@
+# 中文简历数据池（可替换为你的真实信息，隐私敏感可加入 .gitignore）
+
+name = "张恒基"
+title = "全栈开发者 / 算法工程师"
+
+[contact]
+phone = "17200481243"
+email = "bosprimigenious@foxmail.com"
+website = "bosprimigenious.site"
+github = "github.com/bosprimigenious"
+
+[education]
+section_title = "教育背景"
+school = "北京邮电大学 (BUPT)"
+major = "本科 · 计算机科学与技术"
+date = "2024.09 - 2028.06"
+location = "北京"
+highlights = [
+  "综测排名 47/452 (前 10%)，校级二等奖学金、三好学生",
+  "核心课程：数据结构、算法设计与分析、操作系统、计算机网络"
+]
+
+[experience]
+section_title = "实习与项目经历"
+# 可在此扩展更多经历条目，或由模板内联
+
+[honors]
+section_title = "竞赛荣誉"
+items = [
+  "中国国际大学生创新大赛北京赛区一等奖 (核心主创)",
+  "北京市高校联盟数学建模比赛二等奖 (队长)",
+  "北邮「鸿雁杯」主赛道一等奖 (技术负责人)"
+]
+
+[skills]
+section_title = "专业技能"
+languages = "Python, C++, TypeScript, JavaScript"
+frontend = "Vue3, React, Canvas, Vite, TailwindCSS"
+backend = "Node.js, Linux, Nginx, Docker"
+tools = "数据结构与算法, 数学建模 (Matlab), Git"

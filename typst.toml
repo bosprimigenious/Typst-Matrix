@@ -1,0 +1,24 @@
+# 本地包管理声明
+# 在文档中可使用 #import "00_core_engine/fonts.typ" 等相对路径
+# 可选：通过 typst doc 生成文档
+[package]
+name = "my-typst-workspace"
+version = "0.1.0"
+authors = []
+description = "个人 Typst 工作区：学业、简历、工程文档、出版与演示"
+
+[dependencies]
+# 按需取消注释并运行 typst add
+# codly = "0.3.0"              # 代码高亮
+# touying = "0.6.0"            # 幻灯片
+
+# 纯代码绘图（流程图 / 架构图 / 矢量图）
+# cetz = "0.4.2"              # 底层绘图引擎，复杂几何与矢量图
+# fletcher = "0.5.8"          # 流程图、状态机、拓扑图，连线自动避让（基于 CeTZ）
+
+# 数模与学术模板
+# charged-ieee = "0.1.4"      # IEEE 双栏论文 / 数模国赛美赛风格
+
+# 笔记与排版增强
+# gentle-clues = "1.3.0"      # Obsidian 风格 Callout（info / tip / warning / danger 等）
+# tablex = "0.0.14"          # 增强表格（合并单元格、复杂表头）

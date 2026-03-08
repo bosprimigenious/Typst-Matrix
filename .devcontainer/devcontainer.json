@@ -1,0 +1,27 @@
+{
+  "name": "Typst-Matrix Workspace",
+  "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+  "features": {
+    "ghcr.io/devcontainers/features/rust:1": {},
+    "ghcr.io/devcontainers/features/git:1": {},
+    "ghcr.io/devcontainers/features/github-cli:1": {}
+  },
+  "postCreateCommand": "cargo install --locked typst typstyle && curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to /usr/local/bin",
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "editor.formatOnSave": true,
+        "files.associations": { "*.typ": "typst" },
+        "typst-preview.partialRendering": true,
+        "tinymist.exportPdf": "onSave"
+      },
+      "extensions": [
+        "myriad-dreamin.tinymist",
+        "tamasfe.even-better-toml",
+        "yzhang.markdown-all-in-one",
+        "EditorConfig.EditorConfig"
+      ]
+    }
+  },
+  "remoteUser": "vscode"
+}

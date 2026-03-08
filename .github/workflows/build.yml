@@ -1,0 +1,71 @@
+# 云端编译 03_resume 模板：PDF + 预览图 + 发布到 Releases
+# Fork 后改 data_center/profile.toml 并 Push，即可在 Releases 页直接下载 PDF
+# 预览图写回 assets/，paths 排除 assets/** 避免循环触发
+name: Build PDFs & Previews
+
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - "**.typ"
+      - "**.toml"
+      - "00_core_engine/**"
+    paths-ignore:
+      - "assets/**"
+      - "**.md"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Typst
+        uses: typst-community/setup-typst@v4
+        with:
+          typst-version: ">=0.11.0"
+
+      - name: Compile PDFs
+        run: |
+          mkdir -p output assets
+          typst compile --root . 03_resume/resume_aero_minimal.typ output/resume_aero.pdf
+          typst compile --root . 03_resume/resume_golden_dual.typ output/resume_golden.pdf
+          typst compile --root . 03_resume/my_resume.typ output/my_resume.pdf
+          typst compile --root . 03_resume/cv_bento.typ output/cv_bento.pdf
+          typst compile --root . 03_resume/cv_cli.typ output/cv_cli.pdf
+
+      - name: Generate preview PNGs (README gallery)
+        run: |
+          typst compile --root . 03_resume/resume_aero_minimal.typ assets/preview-aero.png --ppi 150
+          typst compile --root . 03_resume/resume_golden_dual.typ assets/preview-golden.png --ppi 150
+          typst compile --root . 03_resume/cv_bento.typ assets/preview-bento.png --ppi 150
+          typst compile --root . 03_resume/cv_cli.typ assets/preview-cli.png --ppi 150
+
+      - name: Upload PDFs (Artifacts)
+        uses: actions/upload-artifact@v4
+        with:
+          name: typst-pdfs
+          path: output/*.pdf
+
+      - name: Release to GitHub Releases (latest)
+        uses: softprops/action-gh-release@v2
+        with:
+          files: output/*.pdf
+          tag_name: latest
+          name: Latest Resume Build
+          body: "自动编译生成的最新简历 PDF。每次 Push 后更新。含 Aero / Golden 双栏 / Bento / CLI 等多风格。"
+          make_latest: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Commit preview assets
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add assets/
+          git diff --staged --quiet || (git commit -m "chore: update preview assets" && git push)
