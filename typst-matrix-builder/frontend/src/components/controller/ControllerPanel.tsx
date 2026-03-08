@@ -1,5 +1,6 @@
 import { useEffect, useCallback, useState } from 'react'
 import { Loader2 } from 'lucide-react'
+import { useLocale } from '../../contexts/LocaleContext'
 import { PersonalForm } from './PersonalForm'
 import { ContactForm } from './ContactForm'
 import { EducationForm } from './EducationForm'
@@ -14,6 +15,7 @@ import { Button } from '../ui/Button'
 const AUTO_COMPILE_DELAY_MS = 1500
 
 export function ControllerPanel() {
+  const { t } = useLocale()
   const [isCompiling, setIsCompiling] = useState(false)
   const setPdfUrl = useResumeStore((s) => s.setPdfUrl)
   const payloadJson = useResumeStore((s) => JSON.stringify(s.getPayload()))
@@ -28,11 +30,11 @@ export function ControllerPanel() {
       setPdfUrl(pdfUrl)
     } catch (e) {
       console.error(e)
-      alert('Compilation failed. Check backend logs.')
+      alert(t('build.compileFailed'))
     } finally {
       setIsCompiling(false)
     }
-  }, [setPdfUrl])
+  }, [setPdfUrl, t])
 
   useEffect(() => {
     runCompile()
@@ -59,10 +61,10 @@ export function ControllerPanel() {
           {isCompiling ? (
             <>
               <Loader2 className="h-4 w-4 animate-spin" />
-              Compiling Engine...
+              {t('build.compiling')}
             </>
           ) : (
-            'Build Document'
+            t('build.document')
           )}
         </Button>
       </div>
